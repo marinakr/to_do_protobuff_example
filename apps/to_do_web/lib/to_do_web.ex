@@ -21,7 +21,6 @@ defmodule ToDoWeb do
     quote do
       use Phoenix.Controller, namespace: ToDoWeb
       import Plug.Conn
-      import ToDoWeb.Gettext
       alias ToDoWeb.Router.Helpers, as: Routes
     end
   end
@@ -36,7 +35,6 @@ defmodule ToDoWeb do
       import Phoenix.Controller, only: [get_flash: 1, get_flash: 2, view_module: 1]
 
       import ToDoWeb.ErrorHelpers
-      import ToDoWeb.Gettext
       alias ToDoWeb.Router.Helpers, as: Routes
     end
   end
@@ -52,7 +50,6 @@ defmodule ToDoWeb do
   def channel do
     quote do
       use Phoenix.Channel
-      import ToDoWeb.Gettext
     end
   end
 

@@ -1,0 +1,14 @@
+package todo;
+message Item {
+  enum Status {
+    TODO = 0;
+    IN_PROCESS = 1;
+    PENDING = 2;
+    DONE = 1;
+  }
+  required Status status = 1;
+  required string owner = 2;
+  required string title = 3;
+  optional string description = 4;
+  optional string id = 4;
+}
