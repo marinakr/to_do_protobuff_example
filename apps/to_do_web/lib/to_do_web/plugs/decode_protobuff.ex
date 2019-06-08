@@ -5,8 +5,9 @@ defmodule Web.Plugs.DecodeProtobuf do
 
   def init(opts), do: opts
 
-  def call(conn, ProtoItem) do
-    with true <- protobuf_content?(conn),
+  def call(conn, module) do
+    with true <- is_protoitem?(module),
+         true <- protobuf_content?(conn),
          {:ok, binary, conn} <- parse_body(conn, "") do
       decoded = ProtoItem.decode(binary)
 
@@ -14,15 +15,13 @@ defmodule Web.Plugs.DecodeProtobuf do
     else
       _ ->
         conn
-        |> send_resp(400, "")
+        |> send_resp(400, "#{module} is not supported")
         |> halt()
     end
   end
 
-  def call(conn, module) do
-    conn
-    |> send_resp(501, "#{module} is not supported")
-    |> halt()
+  defp is_protoitem?(module) do
+    "ProtoItem" == module |> Module.split() |> List.last()
   end
 
   defp protobuf_content?(conn) do

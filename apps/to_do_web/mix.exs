@@ -38,9 +38,10 @@ defmodule ToDoWeb.MixProject do
   defp deps do
     [
       {:phoenix, "~> 1.4.0"},
+      {:phoenix_ecto, "~> 4.0"},
       {:phoenix_pubsub, "~> 1.1"},
       {:to_do, in_umbrella: true},
-      {:proto, in_umbrella: true},
+      {:protobuf, in_umbrella: true},
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"}
     ]

@@ -18,6 +18,7 @@ defmodule ToDoWeb.ConnCase do
   using do
     quote do
       # Import conveniences for testing with connections
+      import ToDoWeb.Router.Helpers
       use Phoenix.ConnTest
       alias ToDoWeb.Router.Helpers, as: Routes
 

@@ -1,6 +1,10 @@
 defmodule ToDoWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :to_do_web
 
+  if Application.get_env(:to_do_web, :sql_sandbox) do
+    plug(Phoenix.Ecto.SQL.Sandbox)
+  end
+
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.
   if code_reloading? do

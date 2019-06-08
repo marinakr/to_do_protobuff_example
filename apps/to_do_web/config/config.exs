@@ -15,6 +15,8 @@ config :to_do_web, ToDoWeb.Endpoint,
   render_errors: [view: ToDoWeb.ErrorView, accepts: ~w(json)],
   pubsub: [name: ToDoWeb.PubSub, adapter: Phoenix.PubSub.PG2]
 
+config :phoenix, :format_encoders, proto: Web.ProtoFormatEncoder
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env()}.exs"

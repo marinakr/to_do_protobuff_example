@@ -9,3 +9,5 @@ use Mix.Config
 config :to_do_web, ToDoWeb.Endpoint,
   http: [port: 4002],
   server: false
+
+config :to_do_web, sql_sandbox: true

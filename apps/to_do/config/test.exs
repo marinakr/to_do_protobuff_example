@@ -1,5 +1,2 @@
-# Since configuration is shared in umbrella projects, this file
-# should only configure the :to_do application itself
-# and only for organization purposes. All other config goes to
-# the umbrella root.
 use Mix.Config
+config :to_do, Todo.Repo, pool: Ecto.Adapters.SQL.Sandbox, database: "to_do_repo_test"
