@@ -1,12 +1,14 @@
 defmodule ToDo.Items do
   @moduledoc false
   import Ecto.Query
-  import Ecto.Changeset
 
   alias Ecto.Changeset
-  alias Protobuf.Definitions.Todo.Item, as: ProtoItem
   alias ToDo.Item
   alias ToDo.Repo
+
+  def get_by_id(id) do
+    Repo.get(Item, id)
+  end
 
   def create(proto_item) do
     with attributes <- proto_map(proto_item),
@@ -26,8 +28,11 @@ defmodule ToDo.Items do
     end
   end
 
-  def get_by_id(id) do
-    Repo.get(Item, id)
+  def delete(id) do
+    with %Item{} = item <- get_by_id(id),
+         {:ok, item} <- Repo.delete(item) do
+      {:ok, item}
+    end
   end
 
   defp new?(nil), do: true

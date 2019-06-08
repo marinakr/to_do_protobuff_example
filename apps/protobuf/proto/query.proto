@@ -1,0 +1,6 @@
+package todo;
+message SearchRequest {
+  required string query = 1;
+  optional int32 page_number = 2;
+  optional int32 page_size = 3;
+}

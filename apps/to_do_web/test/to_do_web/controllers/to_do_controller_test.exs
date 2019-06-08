@@ -5,6 +5,7 @@ defmodule ToDoWeb.ToDoControllerTest do
 
   alias Ecto.UUID
   alias Protobuf.Definitions.Todo.Item, as: ProtoItem
+  alias Protobuf.Definitions.Todo.SearchRequest, as: ProtoSearchRequest
   alias ToDo.Item
   alias ToDo.Items
   alias ToDo.Repo
@@ -19,7 +20,7 @@ defmodule ToDoWeb.ToDoControllerTest do
         status: :TODO,
         owner: UUID.generate(),
         title: "test task",
-        description: "play with protobuffs"
+        description: "play with protobufs"
       }
 
       resp =
@@ -35,10 +36,6 @@ defmodule ToDoWeb.ToDoControllerTest do
   end
 
   describe "update item" do
-    setup %{conn: conn} do
-      {:ok, conn: conn}
-    end
-
     test "with valid req successfully", %{conn: conn} do
       item = Repo.insert!(%Item{status: "TODO", owner: UUID.generate(), title: "test task"})
 
@@ -47,7 +44,7 @@ defmodule ToDoWeb.ToDoControllerTest do
           status: :DONE,
           owner: item.owner,
           title: item.title,
-          description: "elixir CRUD protobuffs",
+          description: "elixir CRUD protobufs",
           id: item.id
         })
 
@@ -58,8 +55,7 @@ defmodule ToDoWeb.ToDoControllerTest do
 
       assert %Plug.Conn{status: 200, assigns: assigns} = resp
 
-      assert %Item{status: "DONE", description: "elixir CRUD protobuffs"} =
-               Items.get_by_id(item.id)
+      assert %Item{status: "DONE", description: "elixir CRUD protobufs"} = Items.get_by_id(item.id)
     end
   end
 
@@ -74,6 +70,46 @@ defmodule ToDoWeb.ToDoControllerTest do
 
       assert %Plug.Conn{status: 200, assigns: assigns} = resp
       assert item == assigns[:item]
+    end
+  end
+
+  describe "delete item" do
+    test "with valid id successfully", %{conn: conn} do
+      item = Repo.insert!(%Item{status: "TODO", owner: UUID.generate(), title: "no matter"})
+
+      resp =
+        conn
+        |> Plug.Conn.put_req_header("content-type", "application/x-protobuf")
+        |> delete(to_do_path(conn, :delete, item.id))
+
+      assert %Plug.Conn{status: 200, assigns: assigns} = resp
+      assert Map.delete(item, :__meta__) == Map.delete(assigns[:item], :__meta__)
+      refute Items.get_by_id(item.id)
+    end
+  end
+
+  describe "list items" do
+    setup %{conn: conn} do
+      owner = UUID.generate()
+      Repo.insert!(%Item{status: "TODO", owner: owner, title: "add release instruments"})
+      Repo.insert!(%Item{status: "IN_PROCESS", owner: owner, title: "write CRUD API"})
+      Repo.insert!(%Item{status: "DONE", owner: UUID.generate(), title: "add .proto"})
+      {:ok, conn: conn, owner: owner}
+    end
+
+    test "search by status and find items", %{conn: conn, owner: owner} do
+      search_params = %{status: "TODO,IN_PROCESS"}
+      search_params2 = %{owner: owner, title: "write CRUD API"}
+      search_params3 = %{status: "PENDING"}
+
+      search_query = %ProtoSearchRequest{query: URI.encode_query(search_params)}
+
+      resp =
+        conn
+        |> Plug.Conn.put_req_header("content-type", "application/x-protobuf")
+        |> get(to_do_path(conn, :index), ProtoSearchRequest.encode(search_query))
+
+      assert %Plug.Conn{status: 200} = resp
     end
   end
 end

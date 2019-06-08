@@ -2,6 +2,7 @@ defmodule ToDoWeb.Router do
   use ToDoWeb, :router
 
   pipeline :api do
+    # add auth, get owner header, etc
   end
 
   scope "/", ToDoWeb do

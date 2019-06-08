@@ -2,14 +2,15 @@ defmodule Web.Plugs.DecodeProtobuf do
   @moduledoc false
   import Plug.Conn
   alias Protobuf.Definitions.Todo.Item, as: ProtoItem
+  alias Protobuf.Definitions.Todo.SearchRequest
 
   def init(opts), do: opts
 
   def call(conn, module) do
-    with true <- is_protoitem?(module),
+    with {:ok, protomodule} <- is_protoitem(module),
          true <- protobuf_content?(conn),
          {:ok, binary, conn} <- parse_body(conn, "") do
-      decoded = ProtoItem.decode(binary)
+      decoded = protomodule.decode(binary)
 
       conn |> assign(:protobuf, decoded)
     else
@@ -20,8 +21,14 @@ defmodule Web.Plugs.DecodeProtobuf do
     end
   end
 
-  defp is_protoitem?(module) do
-    "ProtoItem" == module |> Module.split() |> List.last()
+  defp is_protoitem(module) do
+    proto = module |> Module.split() |> List.last()
+
+    case proto do
+      "ProtoItem" -> {:ok, ProtoItem}
+      "SearchRequest" -> {:ok, SearchRequest}
+      _ -> nil
+    end
   end
 
   defp protobuf_content?(conn) do
