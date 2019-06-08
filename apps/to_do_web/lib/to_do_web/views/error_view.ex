@@ -15,6 +15,6 @@ defmodule ToDoWeb.ErrorView do
   end
 
   def render("422.json", %{error: error}) do
-    %{errors: %{detail: "inspect(#{error})"}}
+    %{errors: %{detail: "#{inspect(error)}"}}
   end
 end
