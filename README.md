@@ -7,13 +7,18 @@ So there is
   neither resolvers of ENVIRONMENT values as creds to databases and default values,
   no release instruments and ssl options for connection
 
-Proto models defined in dir apps/protobuf/proto/ directory
+Proto models defined in dir 
+```
+apps/protobuf/proto/ 
+```
 To create item use item.proto file, to search use query.proto with any client
 
 Run server:
+```
 cd apps/to_do_web
 MIX_ENV=prod  mix ecto.setup
-MIX_ENV=prod mix phx.server   
+MIX_ENV=prod mix phx.server 
+```
 If environment value PORT is set up, server will run on port $PORT,
 if not, port 4000 will be used. Assume there is no PORT env, server runs on port 4000
 
