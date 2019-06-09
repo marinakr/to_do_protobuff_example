@@ -4,7 +4,8 @@ defmodule ToDoWeb.ItemView do
   use ToDoWeb, :view
   alias Protobuf.Definitions.Todo.Item, as: ProtoItem
 
-  @status ~w(TODO IN_PROCESS PENDING DONE)a
+  # call to_existing_atom, ensure statuses exists
+  ~w(TODO IN_PROCESS PENDING DONE)a
 
   def render("index.json", %{items: items}) do
     render_many(items, __MODULE__, "show.json", as: :item)

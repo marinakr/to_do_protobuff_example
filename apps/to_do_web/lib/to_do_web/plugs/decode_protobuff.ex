@@ -1,6 +1,7 @@
 defmodule Web.Plugs.DecodeProtobuf do
   @moduledoc false
   import Plug.Conn
+
   alias Protobuf.Definitions.Todo.Item, as: ProtoItem
   alias Protobuf.Definitions.Todo.SearchRequest
 
@@ -25,7 +26,7 @@ defmodule Web.Plugs.DecodeProtobuf do
     proto = module |> Module.split() |> List.last()
 
     case proto do
-      "ProtoItem" -> {:ok, ProtoItem}
+      "Item" -> {:ok, ProtoItem}
       "SearchRequest" -> {:ok, SearchRequest}
       _ -> nil
     end

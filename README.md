@@ -45,21 +45,18 @@ payload = ProtoItem.encode(item)
 ```
 Lets post new item:
 ```
-HTTPoison.post("http://localhost:4000/todo/", payload, [{"content-type", "application/x-protobuf"}])  
-{:ok,
- %HTTPoison.Response{
-   body: "\"\\b\\u0000\\u0012$61f2a609-966e-49d9-9a06-943af12a8591\\u001A\\ttest task\\\"\\u0013play with protobufs*$f0ce9f54-bac8-40eb-aaf0-e05b2182e1ba\"",
-   headers: [
-     {"cache-control", "max-age=0, private, must-revalidate"},
-     {"content-length", "135"},
-     {"content-type", "application/json; charset=utf-8"},
-     {"date", "Sun, 09 Jun 2019 14:50:59 GMT"},
-     {"server", "Cowboy"},
-     {"x-request-id", "FaaPSBjVQKVDboEAADxi"}
-   ],
-   request_url: "http://localhost:4000/todo/",
-   status_code: 201
- }}
+ {:ok, {{_, 201, _}, _, body}} = :httpc.request(:post, {'http://localhost:4000/todo/', [{'content-type', 'application/x-protobuf'}], 'application/x-protobuf', :erlang.binary_to_list(payload)}, [], [])
+{:ok,     
+ {{'HTTP/1.1', 201, 'Created'},
+  [
+    {'cache-control', 'max-age=0, private, must-revalidate'},
+    {'date', 'Sun, 09 Jun 2019 17:25:29 GMT'},
+    {'server', 'Cowboy'},
+    {'content-length', '135'},
+    {'content-type', 'application/json; charset=utf-8'},
+    {'x-request-id', 'FaaXtlfm-Wwy1JMAAAOB'}
+  ],
+  '"\\b\\u0000\\u0012$c50c62fc-e65e-4623-be60-9daa6651251f\\u001A\\ttest task\\"\\u0013play with protobufs*$db6930ff-8e89-43c6-b477-378d98472567"'}}
 ```
 Now item stored in database, you can manually check it with psql
 Now update our item:
