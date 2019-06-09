@@ -80,7 +80,7 @@ Search query send encoded protobuff, so to process protobuf data from payload us
 This was implemented ONLY with TUTOR goal to add proto model on search
 And list items:
 ```
-list_payload = %ProtoSearchRequest{query: URI.encode_query(%{status: :IN_PROCESS, title: "test task"})} |> ProtoSearchRequest.encode |> URI.encode |> String.to_charlist
+list_payload = %ProtoSearchRequest{query: URI.encode_query(%{title: "test task"})} |> ProtoSearchRequest.encode |> String.to_charlist 
 
 :httpc.request(:post, {'http://localhost:4000/todo/search', [{'content-type', 'application/x-protobuf'}], 'application/x-protobuf', list_payload}, [], [])
 

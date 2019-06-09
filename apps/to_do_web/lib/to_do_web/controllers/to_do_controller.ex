@@ -10,7 +10,7 @@ defmodule ToDoWeb.ToDoController do
   alias ToDoWeb.ItemView
 
   plug Web.Plugs.DecodeProtobuf, Protobuf.Definitions.Todo.Item when action in ~w(create update)a
-  plug Web.Plugs.DecodeProtobuf, Proto.SearchRequest when action in ~w(index)a
+  plug Web.Plugs.DecodeProtobuf, Protobuf.Definitions.Todo.SearchRequest when action in ~w(index)a
 
   action_fallback(ToDoWeb.FallbackController)
 
