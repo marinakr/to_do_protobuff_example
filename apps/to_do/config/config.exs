@@ -4,7 +4,9 @@
 # the umbrella root.
 use Mix.Config
 
-config :to_do, ecto_repos: [ToDo.Repo]
+config :to_do,
+  ecto_repos: [ToDo.Repo],
+  default_page_size: 50
 
 config :to_do, ToDo.Repo,
   database: "to_do_repo",

@@ -23,8 +23,13 @@ defmodule ToDoWeb.ToDoController do
   def index(%Plug.Conn{assigns: %{protobuf: %ProtoSearchRequest{} = search_request}} = conn, _) do
     with %ProtoSearchRequest{query: query, page_number: page_number, page_size: page_size} <-
            search_request,
-         params <- URI.decode_query(query) do
-      params |> IO.inspect()
+         params <- URI.decode_query(query),
+         paging <- %{page_number: page_number, page_size: page_size},
+         items <- Items.list(params, paging) do
+      conn
+      |> put_status(:ok)
+      |> put_view(ItemView)
+      |> render("index.json", %{items: items})
     end
   end
 

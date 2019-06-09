@@ -51,6 +51,8 @@ defmodule ToDoWeb.MixProject do
   #
   # See the documentation for `Mix` for more info on aliases.
   defp aliases do
-    []
+    [
+      "ecto.setup": fn _ -> Mix.shell().cmd("cd ../to_do && mix ecto.setup") end
+    ]
   end
 end

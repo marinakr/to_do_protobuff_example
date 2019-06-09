@@ -10,11 +10,11 @@ defmodule ToDoWeb.ToDoControllerTest do
   alias ToDo.Items
   alias ToDo.Repo
 
-  describe "create item" do
-    setup %{conn: conn} do
-      {:ok, conn: conn}
-    end
+  setup do
+    :ok = Ecto.Adapters.SQL.Sandbox.checkout(Repo)
+  end
 
+  describe "create item" do
     test "with valid req successfully", %{conn: conn} do
       item = %ProtoItem{
         status: :TODO,
@@ -91,17 +91,16 @@ defmodule ToDoWeb.ToDoControllerTest do
   describe "list items" do
     setup %{conn: conn} do
       owner = UUID.generate()
-      Repo.insert!(%Item{status: "TODO", owner: owner, title: "add release instruments"})
-      Repo.insert!(%Item{status: "IN_PROCESS", owner: owner, title: "write CRUD API"})
-      Repo.insert!(%Item{status: "DONE", owner: UUID.generate(), title: "add .proto"})
-      {:ok, conn: conn, owner: owner}
+      todo = Repo.insert!(%Item{status: "TODO", owner: owner, title: "add release instruments"})
+      in_process = Repo.insert!(%Item{status: "IN_PROCESS", owner: UUID.generate(), title: "write CRUD API"})
+      done = Repo.insert!(%Item{status: "DONE", owner: owner, title: "add .proto"})
+
+      conn = Plug.Conn.put_req_header(conn, "content-type", "application/x-protobuf")
+      {:ok, conn: conn, owner: owner, items: %{todo: todo, in_process: in_process, done: done}}
     end
 
-    test "search by status and find items", %{conn: conn, owner: owner} do
+    test "search by status and find items", %{conn: conn, items: db_items} do
       search_params = %{status: "TODO,IN_PROCESS"}
-      search_params2 = %{owner: owner, title: "write CRUD API"}
-      search_params3 = %{status: "PENDING"}
-
       search_query = %ProtoSearchRequest{query: URI.encode_query(search_params)}
 
       resp =
@@ -109,7 +108,43 @@ defmodule ToDoWeb.ToDoControllerTest do
         |> Plug.Conn.put_req_header("content-type", "application/x-protobuf")
         |> get(to_do_path(conn, :index), ProtoSearchRequest.encode(search_query))
 
-      assert %Plug.Conn{status: 200} = resp
+      assert %Plug.Conn{status: 200, assigns: assigns} = resp
+      assert items = assigns.items
+      assert 2 == Enum.count(items)
+      assert MapSet.new([db_items.todo, db_items.in_process]) == MapSet.new(items)
+    end
+
+    test "search by status and find 1 items for 2 page", %{conn: conn, items: db_items} do
+      search_params = %{status: "TODO,IN_PROCESS"}
+      search_query = %ProtoSearchRequest{query: URI.encode_query(search_params), page_size: 1, page_number: 2}
+
+      resp = get(conn, to_do_path(conn, :index), ProtoSearchRequest.encode(search_query))
+
+      assert %Plug.Conn{status: 200, assigns: assigns} = resp
+      assert items = assigns.items
+      assert 1 == Enum.count(items)
+      assert db_items.in_process == hd(items)
+    end
+
+    test "search by owner", %{conn: conn, owner: owner, items: db_items} do
+      search_params = %{owner: owner}
+      search_query = %ProtoSearchRequest{query: URI.encode_query(search_params)}
+      resp = get(conn, to_do_path(conn, :index), ProtoSearchRequest.encode(search_query))
+
+      assert %Plug.Conn{status: 200, assigns: assigns} = resp
+      assert items = assigns.items
+      assert 2 == Enum.count(items)
+      assert MapSet.new([db_items.todo, db_items.done]) == MapSet.new(items)
+    end
+
+    test "search by owners", %{conn: conn, owner: owner, items: db_items} do
+      search_params = %{owner: "#{owner},#{db_items.in_process.owner}"}
+      search_query = %ProtoSearchRequest{query: URI.encode_query(search_params)}
+      resp = get(conn, to_do_path(conn, :index), ProtoSearchRequest.encode(search_query))
+
+      assert %Plug.Conn{status: 200, assigns: assigns} = resp
+      assert items = assigns.items
+      assert 3 == Enum.count(items)
     end
   end
 end

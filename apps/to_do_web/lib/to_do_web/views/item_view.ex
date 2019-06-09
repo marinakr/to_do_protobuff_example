@@ -10,10 +10,7 @@ defmodule ToDoWeb.ItemView do
     render_many(items, __MODULE__, "show.json", as: :item)
   end
 
-  def render("show.json", %{
-        item:
-          %{id: id, status: status, owner: owner, title: title, description: description} = item
-      }) do
+  def render("show.json", %{item: %{id: id, status: status, owner: owner, title: title, description: description}}) do
     proto_item = %ProtoItem{
       id: id,
       title: title,
