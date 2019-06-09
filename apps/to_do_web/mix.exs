@@ -43,7 +43,9 @@ defmodule ToDoWeb.MixProject do
       {:to_do, in_umbrella: true},
       {:protobuf, in_umbrella: true},
       {:jason, "~> 1.0"},
-      {:plug_cowboy, "~> 2.0"}
+      {:plug_cowboy, "~> 2.0"},
+      # Only for client
+      {:httpoison, "~> 1.1.0"}
     ]
   end
 
