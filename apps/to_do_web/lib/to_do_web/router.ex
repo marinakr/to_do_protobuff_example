@@ -7,6 +7,9 @@ defmodule ToDoWeb.Router do
 
   scope "/", ToDoWeb do
     pipe_through :api
-    resources "/todo", ToDoController, only: [:index, :show, :create, :update, :delete]
+    resources "/todo", ToDoController, only: [:show, :create, :update, :delete]
+
+    # Search query send encoded protobuff, so to process protobuf data from payload use post
+    post("/todo/search", ToDoController, :index, as: :index)
   end
 end

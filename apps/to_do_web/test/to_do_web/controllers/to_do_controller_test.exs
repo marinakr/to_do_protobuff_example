@@ -103,10 +103,7 @@ defmodule ToDoWeb.ToDoControllerTest do
       search_params = %{status: "TODO,IN_PROCESS"}
       search_query = %ProtoSearchRequest{query: URI.encode_query(search_params)}
 
-      resp =
-        conn
-        |> Plug.Conn.put_req_header("content-type", "application/x-protobuf")
-        |> get(to_do_path(conn, :index), ProtoSearchRequest.encode(search_query))
+      resp = post(conn, index_path(conn, :index), ProtoSearchRequest.encode(search_query))
 
       assert %Plug.Conn{status: 200, assigns: assigns} = resp
       assert items = assigns.items
@@ -118,7 +115,7 @@ defmodule ToDoWeb.ToDoControllerTest do
       search_params = %{status: "TODO,IN_PROCESS"}
       search_query = %ProtoSearchRequest{query: URI.encode_query(search_params), page_size: 1, page_number: 2}
 
-      resp = get(conn, to_do_path(conn, :index), ProtoSearchRequest.encode(search_query))
+      resp = post(conn, index_path(conn, :index), ProtoSearchRequest.encode(search_query))
 
       assert %Plug.Conn{status: 200, assigns: assigns} = resp
       assert items = assigns.items
@@ -129,7 +126,7 @@ defmodule ToDoWeb.ToDoControllerTest do
     test "search by owner", %{conn: conn, owner: owner, items: db_items} do
       search_params = %{owner: owner}
       search_query = %ProtoSearchRequest{query: URI.encode_query(search_params)}
-      resp = get(conn, to_do_path(conn, :index), ProtoSearchRequest.encode(search_query))
+      resp = post(conn, index_path(conn, :index), ProtoSearchRequest.encode(search_query))
 
       assert %Plug.Conn{status: 200, assigns: assigns} = resp
       assert items = assigns.items
@@ -140,7 +137,7 @@ defmodule ToDoWeb.ToDoControllerTest do
     test "search by owners", %{conn: conn, owner: owner, items: db_items} do
       search_params = %{owner: "#{owner},#{db_items.in_process.owner}"}
       search_query = %ProtoSearchRequest{query: URI.encode_query(search_params)}
-      resp = get(conn, to_do_path(conn, :index), ProtoSearchRequest.encode(search_query))
+      resp = post(conn, index_path(conn, :index), ProtoSearchRequest.encode(search_query))
 
       assert %Plug.Conn{status: 200, assigns: assigns} = resp
       assert items = assigns.items

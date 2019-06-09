@@ -46,22 +46,42 @@ payload = ProtoItem.encode(item)
 Lets post new item:
 ```
  {:ok, {{_, 201, _}, _, body}} = :httpc.request(:post, {'http://localhost:4000/todo/', [{'content-type', 'application/x-protobuf'}], 'application/x-protobuf', :erlang.binary_to_list(payload)}, [], [])
-{:ok,     
- {{'HTTP/1.1', 201, 'Created'},
-  [
-    {'cache-control', 'max-age=0, private, must-revalidate'},
-    {'date', 'Sun, 09 Jun 2019 17:25:29 GMT'},
-    {'server', 'Cowboy'},
-    {'content-length', '135'},
-    {'content-type', 'application/json; charset=utf-8'},
-    {'x-request-id', 'FaaXtlfm-Wwy1JMAAAOB'}
-  ],
-  '"\\b\\u0000\\u0012$c50c62fc-e65e-4623-be60-9daa6651251f\\u001A\\ttest task\\"\\u0013play with protobufs*$db6930ff-8e89-43c6-b477-378d98472567"'}}
 ```
 Now item stored in database, you can manually check it with psql
-Now update our item:
+
+Decode response to get id of created item and put updated status:
 ```
-proto_item_update =  %ProtoItem{status: :IN_PROCESS, id: item.id, owner: item.owner, title: "test protobuff", description: "Update item"}
-update_payload = ProtoItem.encode(proto_item_update)
+ %Protobuf.Definitions.Todo.Item{id: id} = created_item = body |> to_string |> String.trim_leading(~s(")) |> String.trim_trailing(~s("))  |> Macro.unescape_string |> ProtoItem.decode
+ updates_payload = created_item |> Map.put(:status, :IN_PROCESS) |> ProtoItem.encode
+ {:ok, {{_, 200, _}, _, body}} = :httpc.request(:put, {'http://localhost:4000/todo/'++ String.to_charlist(id), [{'content-type', 'application/x-protobuf'}], 'application/x-protobuf', :erlang.binary_to_list(updates_payload)}, [], [])
+```
+Get item:
+```
+ {:ok, {{_,200,_}, _, body}} = :httpc.request('http://localhost:4000/todo/'++ String.to_charlist(id))
+ body |> to_string |> String.trim_leading(~s(")) |> String.trim_trailing(~s("))  |> Macro.unescape_string |> ProtoItem.decode
+```
+You will see:
+```
+%Protobuf.Definitions.Todo.Item{
+  description: "play with protobufs",
+  id: "730ca3db-ab9e-43ed-8d49-174e86e4c0e1",
+  owner: "c50c62fc-e65e-4623-be60-9daa6651251f",
+  status: :IN_PROCESS,
+  title: "test task"
+}
+```
+Delete item:
+```
+:httpc.request(:delete, {'http://localhost:4000/todo/730ca3db-ab9e-43ed-8d49-174e86e4c0e1', []}, [], [])
+```
+...CRETE MORE ITEMS...
+
+Search query send encoded protobuff, so to process protobuf data from payload use post
+This was implemented ONLY with TUTOR goal to add proto model on search
+And list items:
+```
+list_payload = %ProtoSearchRequest{query: URI.encode_query(%{status: :IN_PROCESS, title: "test task"})} |> ProtoSearchRequest.encode |> URI.encode |> String.to_charlist
+
+:httpc.request(:post, {'http://localhost:4000/todo/search', [{'content-type', 'application/x-protobuf'}], 'application/x-protobuf', list_payload}, [], [])
 
 ```
