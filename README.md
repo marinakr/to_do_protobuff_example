@@ -11,7 +11,39 @@ Proto models defined in dir
 ```
 apps/protobuf/proto/ 
 ```
+
+Run test:
+```
+MIX_ENV=test mix ecto.setup
+mix test
+```
 To create item use item.proto file, to search use query.proto with any client
+Item: 
+```
+package todo;
+message Item {
+  enum Status {
+    TODO = 0;
+    IN_PROCESS = 1;
+    PENDING = 2;
+    DONE = 3;
+  }
+  required Status status = 1;
+  required string owner = 2;
+  required string title = 3;
+  optional string description = 4;
+  optional string id = 5;
+}
+```
+And search request:
+```
+package todo;
+message SearchRequest {
+  required string query = 1;
+  optional int32 page_number = 2;
+  optional int32 page_size = 3;
+}
+```
 
 Run server:
 ```
@@ -29,13 +61,21 @@ username: "postgres",
 password: "postgres",
 hostname: "localhost"
 ```
+Routes for manage items:
+```
+to_do_path  GET     /todo/:id     ToDoWeb.ToDoController :show
+to_do_path  POST    /todo         ToDoWeb.ToDoController :create
+            PUT     /todo/:id     ToDoWeb.ToDoController :update
+to_do_path  DELETE  /todo/:id     ToDoWeb.ToDoController :delete
+```
+And search items with protobuff query
+Search query send encoded protobuff, so to process protobuf data from payload use post
+This was implemented ONLY with TUTOR goal to add proto model on search
+```
+index_path  POST    /todo/search  ToDoWeb.ToDoController :index
+```
 
-Run test:
-```
-MIX_ENV=test mix ecto.setup
-mix test
-```
-example how to check server if you do not have any protobuf client
+EXAMPLE how to check server if you do not have any protobuf client
 ```
 MIX_ENV=prod PORT=80 iex -S  mix
 ```
@@ -85,8 +125,6 @@ Delete item:
 ```
 ...CRETE MORE ITEMS...
 
-Search query send encoded protobuff, so to process protobuf data from payload use post
-This was implemented ONLY with TUTOR goal to add proto model on search
 And list items:
 ```
 list_payload = %ProtoSearchRequest{query: URI.encode_query(%{title: "test task"})} |> ProtoSearchRequest.encode |> String.to_charlist 
