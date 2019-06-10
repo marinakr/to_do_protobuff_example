@@ -31,11 +31,15 @@ hostname: "localhost"
 ```
 
 Run test:
+```
 MIX_ENV=test mix ecto.setup
 mix test
-
+```
 example how to check server if you do not have any protobuf client
+```
 MIX_ENV=prod PORT=80 iex -S  mix
+```
+In elixir console:
 ```
 Interactive Elixir (1.8.2) - press Ctrl+C to exit (type h() ENTER for help)
 iex(1)>
